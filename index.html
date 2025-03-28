@@ -33,47 +33,56 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .live-text {
-    position: absolute;
-    top: 50%;
-    left: 30%; /* Final position on left side */
-    transform: translateY(-50%); /* Center vertically */
-    font-family: 'Roboto', sans-serif;
-    font-size: 15rem;
-    font-weight: 500;
-    color: rgb(255, 255, 255);
-    z-index: 100;
-    opacity: 0;
-    animation: slideIn 1.5s ease-out 1s forwards;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    transition: text-shadow 0.3s ease;
-    white-space: pre-line; /* For line breaks if needed */
-}
+            position: absolute;
+            top: 70%;
+            left: 85%;
+            transform: translate(-50%, -50%);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            color: rgb(255, 255, 255);
+            z-index: 100;
+            opacity: 0;
+            text-align: left;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            white-space: nowrap;
+            animation: slideIn 1.5s ease-out 1s forwards;
+            /* Fluid responsive sizing */
+            font-size: clamp(4rem, 10vw, 12rem);
+            line-height: 1;
+            width: 90%;
+            margin: 0 auto;
+        }
 
-@keyframes slideIn {
-    0% { 
-        transform: translateX(100vw) translateY(-50%); /* Start off-screen to the right */
-        opacity: 0;
-    }
-    100% { 
-        transform: translateX(0) translateY(-50%); /* End at left:10% position */
-        opacity: 0.8;
-    }
-}
-        
+        @keyframes slideIn {
+            0% { 
+                transform: translateX(100vw) translateY(-50%);
+                opacity: 0;
+            }
+            100% { 
+                transform: translateX(50%) translateY(50%);
+                opacity: 0.8;
+            }
+        }
+
         /* Responsive text sizing */
         @media (max-width: 1600px) {
-            .live-text { font-size: 20rem; }
+            .live-text { font-size: clamp(3.5rem, 9vw, 10rem); }
         }
         @media (max-width: 1200px) {
-            .live-text { font-size: 15rem; }
+            .live-text { font-size: clamp(3rem, 8vw, 8rem); }
         }
         @media (max-width: 800px) {
-            .live-text { font-size: 10rem; }
+            .live-text { 
+                font-size: clamp(2.5rem, 7vw, 6rem);
+                white-space: normal;
+            }
         }
         @media (max-width: 500px) {
-            .live-text { font-size: 6rem; }
+            .live-text { 
+                font-size: clamp(2rem, 6vw, 4rem);
+                line-height: 1.1;
+            }
         }
-        
         /* Video Controls */
         .video-controls {
             position: absolute;
