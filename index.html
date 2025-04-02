@@ -222,6 +222,55 @@
         left: 75%; /* Adjust positioning for small screens */
     }
 }
+.tagline-text {
+    position: absolute;
+    top: 71%; /* Positioned below the live-text */
+    left:48.9%;
+    transform: translate(-50%, -50%);
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: rgb(255, 255, 255);
+    z-index: 100;
+    opacity: 0;
+    text-align: left;
+    text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    white-space: nowrap;
+    font-size: 2.9rem;
+    line-height: 1;
+    width: 90%;
+    margin: 0 auto;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Responsive sizing for the tagline */
+@media (max-width: 1600px) {
+    .tagline-text { font-size: 2rem; }
+}
+@media (max-width: 1200px) {
+    .tagline-text { font-size: 1.8rem; }
+}
+@media (max-width: 900px) {
+    .tagline-text { 
+        font-size: 1.5rem;
+        white-space: normal;
+    }
+}
+@media (max-width: 600px) {
+    .tagline-text { 
+        font-size: 1.2rem;
+        line-height: 1.2;
+    }
+}
+@media (max-width: 300px) {
+    .tagline-text { 
+        font-size: 1rem;
+        left: 75%;
+    }
+}
         /* Video Controls */
         .video-controls {
             position: absolute;
@@ -348,7 +397,7 @@
             font-weight: 500;
         }
         
-        /* Control area for hover */
+        /* Control area for hover
         .control-area {
             position: absolute;
             bottom: 0;
@@ -356,7 +405,7 @@
             width: 100%;
             height: 50vh;
             z-index: 199;
-        }
+        }*/
         
         /* Responsive button */
         .control-button {
@@ -374,6 +423,37 @@
         .control-button:hover {
             background: #555;
         }
+        .control-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+}
+
+.control-toggle:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+}
+
+@media (max-width: 500px) {
+    .control-toggle {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+}
     </style>
 </head>
 <body>
@@ -392,6 +472,9 @@
             </div>
         </div>
         <div class="live-text" id="liveText"> SNU<br>Amplified </div>
+        <div class="tagline-text" id="taglineText">Real Raw Unfiltered</div>
+
+        <div class="control-toggle" id="controlToggle">⚙️</div>
         <div class="control-area" id="controlArea"></div>
         
         <!-- Video Controls -->
@@ -415,7 +498,7 @@
             <div class="slider-container">
                 <label for="textOpacity">Text Opacity</label>
                 <input type="range" id="textOpacity" min="0" max="1" step="0.05" value="1">
-                <span id="textOpacityValue">0.8</span>
+                <span id="textOpacityValue">1.0</span>
             </div>
         </div>
         
@@ -435,7 +518,7 @@
             <div class="slider-container">
                 <label for="slideDuration">Slide Duration</label>
                 <input type="range" id="slideDuration" min="0.5" max="3" step="0.1" value="1.5">
-                <span id="slideDurationValue">1.5</span>
+                <span id="slideDurationValue">3</span>
             </div>
             <div class="slider-container">
                 <label for="slideDelay">Slide Delay</label>
@@ -450,17 +533,17 @@
             <h3>TEXT GLOW SETTINGS</h3>
             <div class="slider-container">
                 <label for="glowSize">Glow Size</label>
-                <input type="range" id="glowSize" min="0" max="50" step="1" value="36">
+                <input type="range" id="glowSize" min="0" max="50" step="1" value="26">
                 <span id="glowSizeValue">10px</span>
             </div>
             <div class="slider-container">
                 <label for="glowIntensity">Intensity</label>
-                <input type="range" id="glowIntensity" min="0" max="1" step="0.05" value="0.55">
-                <span id="glowIntensityValue">0.5</span>
+                <input type="range" id="glowIntensity" min="0" max="2" step="0.05" value="2">
+                <span id="glowIntensityValue">5</span>
             </div>
             <div class="slider-container">
                 <label for="glowColor">Color</label>
-                <input type="color" id="glowColor" value="#ffffff">
+                <input type="color" id="glowColor" value="#5c61ff">
                 <span id="glowColorValue">#ffffff</span>
             </div>
             <button class="control-button" id="applyGlow">Apply Glow</button>
@@ -468,6 +551,7 @@
     </div>
 
     <script>
+        
         // DOM Elements
         const video = document.getElementById('podcastVideo');
         const liveText = document.getElementById('liveText');
@@ -475,17 +559,33 @@
         const animationControls = document.getElementById('animationControls');
         const glowControls = document.getElementById('glowControls');
         const controlArea = document.getElementById('controlArea');
+        const controlToggle = document.getElementById('controlToggle');
         
         // Auto-hide variables
-        let hideTimeout;
-        const HIDE_DELAY = 2000; // 1 second
-        let isMouseOverControls = false;
+        //let hideTimeout;
+        //const HIDE_DELAY = 2000; // 1 second
+        //let isMouseOverControls = false;
+        let controlsVisible = false;
+
+        // Initialize with controls hidden
+        videoControls.style.opacity = 0;
+        animationControls.style.opacity = 0;
+        glowControls.style.opacity = 0;
+
+        controlToggle.addEventListener('click', function() {
+        controlsVisible = !controlsVisible;
+        videoControls.style.opacity = controlsVisible ? 1 : 0;
+        animationControls.style.opacity = controlsVisible ? 1 : 0;
+        glowControls.style.opacity = controlsVisible ? 1 : 0;
+    });
     
         // Initialize controls
-        resetHideTimer();
         setupVideoControls();
         setupAnimationControls();
         setupGlowControls();
+        applyAnimations();
+        updateGlow()
+        updateTextOpacity();
     
         // Video control functions
         function setupVideoControls() {
@@ -515,82 +615,102 @@
             document.getElementById('brightnessValue').textContent = brightness;
             document.getElementById('contrastValue').textContent = contrast;
             document.getElementById('saturationValue').textContent = saturation;
-            
-            resetHideTimer();
-        }
-    
+}
+
         function updateTextOpacity() {
             const opacity = document.getElementById('textOpacity').value;
             liveText.style.opacity = opacity;
+            taglineText.style.opacity = opacity;
             document.getElementById('textOpacityValue').textContent = opacity;
-            applyAnimations();
-            resetHideTimer();
-        }
+}
     
         // Animation control functions
         function setupAnimationControls() {
             document.getElementById('zoomDuration').addEventListener('input', function() {
                 document.getElementById('zoomDurationValue').textContent = this.value;
-                resetHideTimer();
+                
             });
             document.getElementById('zoomAmount').addEventListener('input', function() {
                 document.getElementById('zoomAmountValue').textContent = this.value;
-                resetHideTimer();
+                
             });
             document.getElementById('slideDuration').addEventListener('input', function() {
                 document.getElementById('slideDurationValue').textContent = this.value;
-                resetHideTimer();
+                
             });
             document.getElementById('slideDelay').addEventListener('input', function() {
                 document.getElementById('slideDelayValue').textContent = this.value;
-                resetHideTimer();
+                
             });
     
             document.getElementById('applyAnimations').addEventListener('click', function() {
                 applyAnimations();
-                resetHideTimer();
+                
             });
         }
     
         function applyAnimations() {
-            const zoomDuration = document.getElementById('zoomDuration').value;
-            const zoomAmount = document.getElementById('zoomAmount').value;
-            const slideDuration = document.getElementById('slideDuration').value;
-            const slideDelay = document.getElementById('slideDelay').value;
-            const textOpacity = document.getElementById('textOpacity').value || '0.8';
+    const zoomDuration = document.getElementById('zoomDuration').value;
+    const zoomAmount = document.getElementById('zoomAmount').value;
+    const slideDuration = document.getElementById('slideDuration').value;
+    const slideDelay = document.getElementById('slideDelay').value;
+    const textOpacity = document.getElementById('textOpacity').value;
+
+    // Reset animations
+    video.style.animation = 'none';
+    liveText.style.animation = 'none';
+    taglineText.style.animation = 'none';
     
-            video.style.animation = 'none';
-            liveText.style.animation = 'none';
-            
-            void video.offsetWidth;
-            void liveText.offsetWidth;
-            
-            video.style.animation = `zoomIn ${zoomDuration}s ease-out forwards`;
-            liveText.style.animation = `slideIn ${slideDuration}s ease-out ${slideDelay}s forwards`;
-            
-            const styleSheet = document.styleSheets[document.styleSheets.length - 1];
-            
-            for (let i = styleSheet.cssRules.length - 1; i >= 0; i--) {
-                if (styleSheet.cssRules[i].name === 'zoomIn' || 
-                    styleSheet.cssRules[i].name === 'slideIn') {
-                    styleSheet.deleteRule(i);
-                }
-            }
-            
-            styleSheet.insertRule(`
-                @keyframes zoomIn {
-                    0% { transform: scale(${zoomAmount}); opacity: 0; }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-            `, styleSheet.cssRules.length);
-            
-            styleSheet.insertRule(`
-                @keyframes slideIn {
-                    0% { transform: translate(-150%, -80%); opacity: 0; }
-                    100% { transform: translate(-90%, -80%); opacity: ${textOpacity}; }
-                }
-            `, styleSheet.cssRules.length);
+    // Trigger reflow
+    void video.offsetWidth;
+    void liveText.offsetWidth;
+    void taglineText.offsetWidth;
+
+    // Calculate when slideIn will finish (delay + duration)
+    const taglineStartDelay = parseFloat(slideDelay) + parseFloat(slideDuration);
+
+    // Apply animations
+    video.style.animation = `zoomIn ${zoomDuration}s ease-out forwards`;
+    liveText.style.animation = `slideIn ${slideDuration}s ease-out ${slideDelay}s forwards`;
+
+    taglineText.style.opacity = 0; // Ensure it starts hidden
+    setTimeout(() => {
+        taglineText.style.animation = `fadeIn 2.1s ease-out ${taglineStartDelay}s forwards`;
+        taglineText.style.opacity = ''; // Let animation control opacity
+    }, taglineStartDelay * 400);
+
+    // Update stylesheets
+    const styleSheet = document.styleSheets[document.styleSheets.length - 1];
+    
+    // Remove existing keyframes
+    for (let i = styleSheet.cssRules.length - 1; i >= 0; i--) {
+        if (['zoomIn', 'slideIn', 'fadeIn'].includes(styleSheet.cssRules[i].name)) {
+            styleSheet.deleteRule(i);
         }
+    }
+    
+    // Add new keyframes
+    styleSheet.insertRule(`
+        @keyframes zoomIn {
+            0% { transform: scale(${zoomAmount}); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    `, styleSheet.cssRules.length);
+    
+    styleSheet.insertRule(`
+        @keyframes slideIn {
+            0% { transform: translate(-150%, -80%); }
+            100% { transform: translate(-90%, -80%); }
+        }
+    `, styleSheet.cssRules.length);
+
+    styleSheet.insertRule(`
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: ${textOpacity}; }
+        }
+    `, styleSheet.cssRules.length);
+}
     
         // Glow control functions
         function setupGlowControls() {
@@ -602,20 +722,20 @@
             
             glowSize.addEventListener('input', function() {
                 document.getElementById('glowSizeValue').textContent = this.value + 'px';
-                resetHideTimer();
+                
             });
             glowIntensity.addEventListener('input', function() {
                 document.getElementById('glowIntensityValue').textContent = this.value;
-                resetHideTimer();
+                
             });
             glowColor.addEventListener('input', function() {
                 document.getElementById('glowColorValue').textContent = this.value;
-                resetHideTimer();
+                
             });
             
             document.getElementById('applyGlow').addEventListener('click', function() {
                 updateGlow();
-                resetHideTimer();
+                
             });
         }
     
@@ -654,7 +774,7 @@
             }
         }
     
-        controlArea.addEventListener('mouseenter', () => {
+        /*controlArea.addEventListener('mouseenter', () => {
             isMouseOverControls = true;
             videoControls.style.opacity = 1;
             animationControls.style.opacity = 1;
@@ -667,7 +787,7 @@
             resetHideTimer();
         });
     
-        controlArea.addEventListener('mousemove', resetHideTimer);
+        controlArea.addEventListener('mousemove', resetHideTimer);*/
     
         // Initialize animations and effects
         applyAnimations();
